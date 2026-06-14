@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mongo_db:
+    image: mongo:4.4
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  api:
+    build: 
+      context: ./backends/express
+    ports:
+      - "2000:2000"
+    env_file:
+      - ./backends/express/.env
+    depends_on:
+      - mongo_db
+
+  store:
+    build:
+      context: ./web/store/react
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./web/store/react/.env
+    depends_on:
+      - api
+
+  admin:
+    build:
+      context: ./web/admin/react
+    ports:
+      - "8080:80"
+    env_file:
+      - ./web/admin/react/.env
+    depends_on:
+      - api
+
+volumes:
+  mongo_data:
